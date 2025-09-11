@@ -1,0 +1,33 @@
+# Foundry build and cache
+out/
+cache/
+
+# Dotenv files
+.env
+.env.*
+
+# Node stuff (if you use npm/yarn for tooling)
+node_modules/
+package-lock.json
+yarn.lock
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# VSCode / editor settings
+.vscode/
+.idea/
+
+# Coverage reports
+coverage/
+lcov.info
+
+# Temporary files
+*.swp
+*.swo
+*.tmp
+
