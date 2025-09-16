@@ -29,7 +29,7 @@
     jumpi                         // [function_selector]
 
     //0xe026c017                    // [0xe026c017, function_selector]
-    __FUNC_SIG(readNumberofHorses)
+    __FUNC_SIG(readNumberOfHorses)
     eq                            // [true_if_func_selector_matches]
 
     readJump                      // [readJump, true_if_func_selector_matches]

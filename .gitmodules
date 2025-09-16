@@ -1,0 +1,3 @@
+[submodule "HouseStorage/lib/foundry-huff"]
+	path = HouseStorage/lib/foundry-huff
+	url = https://github.com/huff-language/foundry-huff
