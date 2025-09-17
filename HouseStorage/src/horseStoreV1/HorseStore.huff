@@ -1,0 +1,69 @@
+//0xcdfead2e0000000000000000000000000000000000000000000000000000000000000001
+
+
+/* Interface */
+
+#define function updateHorseNumber(uint256) nonpayable returns()
+#define function readNumberOfHorses() view returns(uint256)
+
+#define constant NUMBER_OF_HORSES_STORAGE_SLOT1 = FREE_STORAGE_POINTER()
+#define constant NUMBER_OF_HORSES_STORAGE_SLOT2 = FREE_STORAGE_POINTER()
+
+#define macro MAIN() = takes(0) returns(0){
+    // loads function selector onto the stack
+    
+    0x00 calldataload   0xE0 shr  // [function_selector]
+    // Jump -> function data associated with the selector
+    // If f_select == updateHorseNumber -> jump to that code
+    // If f_select == readNumberofHorses -> jump to that code
+
+    // 0xcdfead2e == updateHorseNumber(uint256)
+    // 0xe026c017 == readNumberofHorses()
+    dup1                          // [function_selector, function_select]
+    //0xcdfead2e                    // [0xcdfead2e, function_selector, function_selector] instead of harcoding this, we can use __FUNC_SIG
+    __FUNC_SIG(updateHorseNumber)
+    eq                            // [true_if_func_selector_matches, function_selector]
+
+
+    updateJump                    // [updateHorseNumberProgramCounter, true/false, function_selector]
+    jumpi                         // [function_selector]
+
+    //0xe026c017                    // [0xe026c017, function_selector]
+    __FUNC_SIG(readNumberOfHorses)
+    eq                            // [true_if_func_selector_matches]
+
+    readJump                      // [readJump, true_if_func_selector_matches]
+    jumpi
+
+    0x00 0x00 revert
+
+    updateJump:
+        SET_NUMBER_OF_HORSES()
+    readJump:
+        GET_NUMBER_OF_HORSES()
+
+}
+
+#define macro SET_NUMBER_OF_HORSES() = takes(0) returns(0){
+    0x04                             // [4]
+    calldataload                     // [input]
+
+    [NUMBER_OF_HORSES_STORAGE_SLOT1] // [storage_slot, input] storage slot 0 for number of horses
+
+    sstore
+
+    stop
+}
+
+#define macro GET_NUMBER_OF_HORSES() = takes(0) returns(0){
+
+    [NUMBER_OF_HORSES_STORAGE_SLOT1]  //[key]
+    sload                             //[value]
+    0x00                              //[0, value]
+    mstore                            //[],  Memory: [value]
+    
+    0x32
+    0x00
+    return
+
+}
