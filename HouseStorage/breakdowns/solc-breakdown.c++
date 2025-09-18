@@ -25,34 +25,40 @@ REVERT                  // [msg.value]
                         // if msg.value is 0, nothing paid, it jumps at jumdest and then copies the rest of the code into memory into blockchain
 
 JUMPDEST                // [msg.value]
-POP
-PUSH2 0x0143
-DUP1
-PUSH2 0x001d
-PUSH0
-CODECOPY                // this thing does all the magic
-PUSH0
-RETURN
-INVALID
+POP                     // []
+PUSH2 0x0143            // [0x143]
+DUP1                    // [0x143,0x143]
+PUSH2 0x001d            // [0x001d, 0x143, 0x143]
+PUSH0                   // [0x00, 0x001d, 0x143, 0x143]
+CODECOPY                // this thing does all the magic [0x143]
+PUSH0                   // [0x00, 0x143]
+RETURN                  // []
+INVALID                 // []
                         //// from here is the runtime
 PUSH1 0x80
 PUSH1 0x40
 MSTORE
-CALLVALUE
-DUP1
-ISZERO
-PUSH2 0x000f
-JUMPI
-PUSH0
-DUP1
-REVERT
-JUMPDEST
-POP
-PUSH1 0x04
-CALLDATASIZE
-LT
-PUSH2 0x0034
-JUMPI
+
+CALLVALUE               // [msg.value]
+DUP1                    // [msg.value, msg.value]
+ISZERO                  // [msg.value == 0 , msg.value]
+PUSH2 0x000f            // [0x00f, msg.value == 0, msg.value]
+JUMPI                   // [msg.value]
+PUSH0                   // [0x00, msg.value]
+DUP1                    // [0x00, 0x00, msg.value]
+REVERT                  // [msg.value] 
+
+//if msg.value == 0, start here!!
+// continue
+JUMPDEST                // [msg.value]
+POP                     // []
+PUSH1 0x04              // [0x04]
+CALLDATASIZE            // [calldata_size, 0x04]
+LT                      // [calldata_size < 0x04]
+PUSH2 0x0034            // [0x0034, calldata_size < 0x04]
+JUMPI                   // [] if calldata_size < 0x04 -> jumpt to call_data_jump
+//                  This was for verifying function selector
+
 PUSH0
 CALLDATALOAD
 PUSH1 0xe0
@@ -67,10 +73,15 @@ PUSH4 0xe026c017
 EQ
 PUSH2 0x0054
 JUMPI
-JUMPDEST
-PUSH0
-DUP1
-REVERT
+
+//calldata_jump
+//revert jumpdest
+JUMPDEST                // []
+PUSH0                   // [0x00]
+DUP1                    // [0x00, 0x00]
+REVERT                  // []    
+
+
 JUMPDEST
 PUSH2 0x0052
 PUSH1 0x04
