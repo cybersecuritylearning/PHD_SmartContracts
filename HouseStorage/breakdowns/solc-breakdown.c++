@@ -1,6 +1,11 @@
 //
 // 1. 0x6080604052
-// 2.  34801561000f575f80fd5b506101438061001d5f395ff3fe608060405234801561000f575f80fd5b5060043610610034575f3560e01c8063cdfead2e14610038578063e026c01714610054575b5f80fd5b610052600480360381019061004d91906100ba565b610072565b005b61005c61007b565b60405161006991906100f4565b60405180910390f35b805f8190555050565b5f8054905090565b5f80fd5b5f819050919050565b61009981610087565b81146100a3575f80fd5b50565b5f813590506100b481610090565b92915050565b5f602082840312156100cf576100ce610083565b5b5f6100dc848285016100a6565b91505092915050565b6100ee81610087565b82525050565b5f6020820190506101075f8301846100e5565b9291505056fea2646970667358221220bae56a43bebff3fe2ef5901e59233f4c51c48880ed1608b038b6ad80af960ce964736f6c63430008140033
+// 2.  
+// runtime
+//  34801561000f575f80fd5b506101438061001d5f395ff3fe608060405234801561000f575f80fd5b5060043610610034575f3560e01c8063cdfead2e14610038578063e026c01714610054575b5f80fd5b610052600480360381019061004d91906100ba565b610072565b005b61005c61007b565b60405161006991906100f4565b60405180910390f35b805f8190555050565b5f8054905090565b5f80fd5b5f819050919
+// 
+// metadata
+// 050565b61009981610087565b81146100a3575f80fd5b50565b5f813590506100b481610090565b92915050565b5f602082840312156100cf576100ce610083565b5b5f6100dc848285016100a6565b91505092915050565b6100ee81610087565b82525050565b5f6020820190506101075f8301846100e5565b9291505056fea2646970667358221220bae56a43bebff3fe2ef5901e59233f4c51c48880ed1608b038b6ad80af960ce964736f6c63430008140033
 
 // 3 sections:
 // 1. Contract creation
@@ -59,20 +64,27 @@ PUSH2 0x0034            // [0x0034, calldata_size < 0x04]
 JUMPI                   // [] if calldata_size < 0x04 -> jumpt to call_data_jump
 //                  This was for verifying function selector
 
-PUSH0
-CALLDATALOAD
-PUSH1 0xe0
-SHR
-DUP1
-PUSH4 0xcdfead2e
-EQ
-PUSH2 0x0038
-JUMPI
-DUP1
-PUSH4 0xe026c017
-EQ
-PUSH2 0x0054
-JUMPI
+
+// Dispatching for updateNumberOfHorses
+PUSH0                   // [0x00]
+CALLDATALOAD            // [32bytes_of_calldata]
+PUSH1 0xe0              // [0xe0, 32bytes_of_calldata]
+SHR                     // [calldata[0:4]] // function selector
+DUP1                    // [func_selector, func_selector]
+PUSH4 0xcdfead2e        // [0xcdfead2e, func_selector, func_selector]
+EQ                      // [func_selector == 0xcdfead2e, func_selector]
+PUSH2 0x0038            // [0x0038, func_selector == 0xcdfead2e, func_selector]
+JUMPI                   // [func_selector]
+// if func_selector == 0xcdfead2e --> calldata_jump  -- set_number_horses
+
+
+//Dispatching for readNumberOfHorses
+DUP1                    // [func_selector, func_selector]
+PUSH4 0xe026c017        // [0xe026c017, func_selector, func_selector]
+EQ                      // [func_selector == 0xe026c017, func_selector]
+PUSH2 0x0054            // [0x0054, func_selector == 0xe026c017, func_selector]
+JUMPI                   // [func_selector]
+// if func_selector == 0xe026c017 --> calldata_jump  -- get_number_of_horses 
 
 //calldata_jump
 //revert jumpdest
@@ -82,12 +94,12 @@ DUP1                    // [0x00, 0x00]
 REVERT                  // []    
 
 
-JUMPDEST
-PUSH2 0x0052
-PUSH1 0x04
-DUP1
-CALLDATASIZE
-SUB
+JUMPDEST                // [func_selector]
+PUSH2 0x0052            // [0x0052, func_selector]
+PUSH1 0x04              // [0x04, 0x0052, func_selector]
+DUP1                    // [0x04, 0x04, 0x0052, func_selector]
+CALLDATASIZE            // [cal_data_size, 0x04, 0x04, 0x0052, func_selector]
+SUB                     // [ ]
 DUP2
 ADD
 SWAP1
