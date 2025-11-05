@@ -1,0 +1,51 @@
+version: "3.8"
+
+services:
+  # ======== Execution layer (Geth) ========
+  geth:
+    image: ethereum/client-go:stable
+    container_name: geth
+    restart: unless-stopped
+    command: >
+           --mainnet
+           --http --http.addr=0.0.0.0 --http.api=eth,net,web3
+           --authrpc.addr=0.0.0.0 --authrpc.port=8551 --authrpc.vhosts=*
+           --authrpc.jwtsecret=/jwt/jwtsecret
+           --metrics --pprof --pprof.addr=0.0.0.0 --pprof.port=6060
+           --metrics.addr=0.0.0.0 --metrics.port=6060
+           --syncmode=full --gcmode=full
+    ports:
+      - "8545:8545"     # JSON-RPC
+      - "30303:30303"   # P2P TCP
+      - "30303:30303/udp"
+      - "6060:6060"     # Metrics
+    volumes:
+      - ./geth_data:/root/.ethereum
+      - ./jwt:/jwt
+
+  # ======== Consensus layer (Lighthouse) ========
+  lighthouse:
+    image: sigp/lighthouse:latest
+    container_name: lighthouse
+    restart: unless-stopped
+    command: >
+      lighthouse bn
+        --network=mainnet
+        --execution-endpoint=http://geth:8551
+        --execution-jwt=/jwt/jwtsecret
+        --checkpoint-sync-url=https://mainnet.checkpoint.sigp.io
+        --metrics
+        --metrics-address=0.0.0.0
+        --metrics-port=5054
+        --datadir=/root/.lighthouse
+    depends_on:
+      - geth
+    ports:
+      - "5052:5052"  # Beacon API
+      - "5054:5054"  # Metrics
+    volumes:
+      - ./lighthouse_data:/root/.lighthouse
+      - ./jwt:/jwt
+
+  # ======== Prometheus ========
+  
