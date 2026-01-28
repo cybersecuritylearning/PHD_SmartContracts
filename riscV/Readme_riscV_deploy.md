@@ -61,6 +61,19 @@ qemu-system-riscv64 \
 - `-netdev user` + `-device virtio-net-device` → user-mode networking
 
 ---
+### deploy with qcow2 image
+
+```bash
+qemu-system-riscv64 \
+  -machine virt \
+  -nographic \
+  -m 2048 \
+  -smp 2 \
+  -kernel /usr/lib/u-boot/qemu-riscv64_smode/uboot.elf \
+  -drive file=ubuntu-20.04-riscv64.qcow2,format=qcow2,if=virtio \
+  -netdev user,id=net0 \
+  -device virtio-net-device,netdev=net0
+```
 
 ## 4. Verify your RISC-V VM
 
