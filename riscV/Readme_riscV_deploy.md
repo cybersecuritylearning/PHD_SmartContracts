@@ -67,11 +67,11 @@ qemu-system-riscv64 \
 qemu-system-riscv64 \
   -machine virt \
   -nographic \
-  -m 2048 \
+  -m 8192 \
   -smp 2 \
   -kernel /usr/lib/u-boot/qemu-riscv64_smode/uboot.elf \
   -drive file=ubuntu-20.04-riscv64.qcow2,format=qcow2,if=virtio \
-  -netdev user,id=net0 \
+  -netdev user,id=net0,hostfwd=tcp::2222-:22,hostfwd=tcp::8545-:8545 \
   -device virtio-net-device,netdev=net0
 ```
 
@@ -144,3 +144,6 @@ cd besu-23.10.1
 
 *This README provides a ready-to-use setup for Ethereum experimentation on RISC-V in QEMU.*
 
+# ChatGpt links
+
+- [Mapping ethereum evm in rust](https://chatgpt.com/s/t_69af1d2bb2548191bbe5160dba2a0ac6)
